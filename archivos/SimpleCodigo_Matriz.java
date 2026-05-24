@@ -1,11 +1,9 @@
-import org.json.JSONArray;
-import org.json.JSONObject;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MatrizAdyacenciaSalta {
-
+public class SimpleCodigo_Matriz{
     public static void main(String[] args) {
         try {
             // 1. Cargar el archivo GeoJSON
@@ -43,7 +41,7 @@ public class MatrizAdyacenciaSalta {
                 JSONArray coords = f.getJSONObject("geometry").getJSONArray("coordinates");
 
                 // Lógica de DOBLE MANO:
-                // Si 'oneway' es 'yes', es mano única. 
+                // Si 'oneway' es 'yes', es mano única.
                 // Si es 'no' o no existe el tag, es doble mano.
                 boolean esManoUnica = props.optString("oneway", "no").equals("yes");
                 String nombreCalle = props.optString("name", "S/N");
@@ -73,7 +71,7 @@ public class MatrizAdyacenciaSalta {
     private static void imprimirMatriz(int[][] matriz, int limite) {
         System.out.println("\n--- MATRIZ DE ADYACENCIA (Mano única vs Doble mano) ---");
         int size = Math.min(matriz.length, limite);
-        
+
         // Encabezado de columnas
         System.out.print("N\t");
         for (int j = 0; j < size; j++) System.out.print("["+j+"] ");
