@@ -6,6 +6,10 @@ public abstract class ColaPrioridad extends ColaLinkedList{
 	public abstract boolean esMayor(Object objA, Object objB);
 	public abstract boolean iguales(Object objA, Object objB);
 
+	public ColaPrioridad(){
+		super();
+	}
+
 	public void meter(Object elemento){
 		Nodo node;
 		node = new Nodo(elemento);

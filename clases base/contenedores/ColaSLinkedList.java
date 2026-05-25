@@ -11,5 +11,6 @@ public class ColaSLinkedList extends ColaLinkedList{
 			this.frenteC=this.finalC= new Nodo(elemento);	
 		}
 	}
+	public Nodo getPrimero(){return this.frenteC;}
 		
 }

@@ -1,5 +1,7 @@
 package clases.codigo;
 
+import java.util.Random;
+
 /**
  * Clase que modela los vehículos/coches disponibles en el sistema.
  */
@@ -10,7 +12,8 @@ public class Unidad {
     private boolean disponible; // Estado de disponibilidad para aceptar solicitudes
 
     public Unidad(String idVehiculo, int idNodoActual) {
-        //completar
+        this.setIdVehiculo(idVehiculo);
+        this.setIdNodoActual(idNodoActual);
     }
 
     /**
@@ -18,9 +21,15 @@ public class Unidad {
      * Si no acepta, la cola de prioridad ofrecerá la solicitud a la siguiente mejor unidad.
      */
     public boolean simularAceptacionViaje() {
-        // TODO: Generar un valor random (ej. 80% de probabilidad de que acepte).
-        // TODO: Cambiar el estado de 'disponible' a falso si el valor es favorable.
-        return false; 
+       boolean estado;
+       Random random=new Random();
+       double valor=random.nextDouble();
+       if (valor>=0.80) {
+        estado=true;
+       }else{
+        estado=false;
+       }
+        return estado; 
     }
 
     // GETTERS Y SETTERS
@@ -29,4 +38,5 @@ public class Unidad {
     public void setIdNodoActual(int idNodoActual) { this.idNodoActual = idNodoActual; }
     public boolean isDisponible() { return disponible; }
     public void setDisponible(boolean disponible) { this.disponible = disponible; }
+    public void setIdVehiculo(String idVehiculo){this.idVehiculo=idVehiculo;}
 }
