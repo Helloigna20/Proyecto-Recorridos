@@ -1,6 +1,7 @@
 package clases.codigo;
 
 import contenedores.ColaPrioridad;
+import contenedores.ColaPrioridadETA;
 import contenedores.ColaSLinkedList;
 import contenedores.ElementoPrioridad;
 import recursos.Nodo;
@@ -28,7 +29,7 @@ public class SolicitudViaje{
      * @param motorGrafo Instancia activa de GestionGrafo para consultar Dijkstra.
      */
     public void procesarYDespachar(Object listaUnidadesSistema, GestionGrafo motorGrafo) {
-       ColaPrioridad colaPrioridadVehiculos = new ColaPrioridad();
+       ColaPrioridad colaPrioridadVehiculos = new ColaPrioridadETA();
        Nodo actual= ((ColaSLinkedList)listaUnidadesSistema).getPrimero();
         while (actual!=null) {
             Unidad unidad=(Unidad)actual.getNodoInfo();

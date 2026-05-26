@@ -11,9 +11,13 @@ public class Unidad {
     private int idNodoActual; // Vértice del grafo donde se encuentra al azar o tras terminar un viaje
     private boolean disponible; // Estado de disponibilidad para aceptar solicitudes
 
+    // NUEVO ATRIBUTO: Guarda el ETA calculado por Dijkstra para el despacho actual
+    private double etaTemporal;
     public Unidad(String idVehiculo, int idNodoActual) {
         this.setIdVehiculo(idVehiculo);
         this.setIdNodoActual(idNodoActual);
+        this.setDisponible(true);
+        this.setEtaTemporal(0.0);
     }
 
     /**
@@ -38,4 +42,6 @@ public class Unidad {
     public boolean isDisponible() { return disponible; }
     public void setDisponible(boolean disponible) { this.disponible = disponible; }
     public void setIdVehiculo(String idVehiculo){this.idVehiculo=idVehiculo;}
+    public double getEtaTemporal() { return etaTemporal; }
+    public void setEtaTemporal(double etaTemporal) { this.etaTemporal = etaTemporal; }
 }
