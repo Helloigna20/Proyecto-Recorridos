@@ -5,11 +5,10 @@ package clases.codigo;
  */
 public class MatrizAdyacencia {
     // ATRIBUTOS
-    private double[][] matriz;
+    private final double[][] matriz;
     private final int cantNodos;
-    private static final double infinito= Double.POSITIVE_INFINITY;
+    private static final double infinito= Double.MAX_VALUE;
 
-    //Busque en google cual era el infinto de java deah #flowerdudas
 
     /**
      * Constructor que inicializa la dimensión N x N de la matriz.
@@ -43,14 +42,8 @@ public class MatrizAdyacencia {
      * Si no es mano única, debe marcar la conexión en ambos sentidos.
      **/
 
-    //No necesito preguntar sobre si la calle es doble mano o no porque eso se supone que hace "simpleCodigo_Matriz"
-    //Cabero utiliza:
-    //Lógica de DOBLE MANO:
-    //Si 'oneway' es 'yes', es mano única.
-    //Si es 'no' o no existe el tag, es doble mano.
-    //Tipo creo que con eso basta (si, no dormi leyendo e intentando entender que P* hace su codigo" >_<
 
-    public void registrarConexion(int origenId, int destinoId, int valor){
+    public void registrarConexion(int origenId, int destinoId, double valor){
         if (esValido(origenId) && esValido(origenId)) {
             this.matriz[origenId][destinoId]= valor;
         }
@@ -86,7 +79,7 @@ public class MatrizAdyacencia {
 
 
     public void imprimirMatriz(int limiteVisualizacion) {
-        //este aun ando viendo como hacerlo...
+
     }
 
     // GETTERS Y SETTERS
