@@ -87,22 +87,4 @@ public class SimpleCodigo_Matriz{
         }
     }
 
-    private static void imprimirMatriz(int[][] matriz, int limite) {
-        System.out.println("\n--- MATRIZ DE ADYACENCIA (Mano única vs Doble mano) ---");
-        int size = Math.min(matriz.length, limite);
-
-        // Encabezado de columnas
-        System.out.print("N\t");
-        for (int j = 0; j < size; j++) System.out.print("["+j+"] ");
-        System.out.println();
-
-        for (int i = 0; i < size; i++) {
-            System.out.print("["+i+"]\t"); // Encabezado de fila
-            for (int j = 0; j < size; j++) {
-                System.out.print(matriz[i][j] + "   ");
-            }
-            System.out.println();
-        }
-        System.out.println("\nNota: El valor '1' indica conexión permitida.");
-    }
 }
