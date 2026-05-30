@@ -101,7 +101,7 @@ public class MatrizAdyacencia {
         return cantNodos;
     }
 
-    public static double getInfinito() {
+    public double getInfinito() {
         return infinito;
     }
 

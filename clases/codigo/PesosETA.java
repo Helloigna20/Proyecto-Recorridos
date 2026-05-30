@@ -1,3 +1,5 @@
+package clases.codigo;
+
 public class PesosETA{
 
     /**
