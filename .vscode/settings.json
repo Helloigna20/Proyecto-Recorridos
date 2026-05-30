@@ -1,0 +1,9 @@
+{
+    "java.project.sourcePaths": [
+        ".",
+        "clases base"
+    ],
+    "java.project.referencedLibraries": [
+        "libs\\json-20240303.jar"
+    ]
+}

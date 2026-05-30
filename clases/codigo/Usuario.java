@@ -10,17 +10,35 @@ public class Usuario {
 
     public Usuario(String idUsuario, int idNodoInterseccion) {
         //completar
+        this.setIdUsuario(idUsuario);
+        this.setIdNodoInterseccion(idNodoInterseccion);
     }
 
     /**
      * Genera una solicitud formal de viaje apuntando a su ubicación actual.
      */
     public SolicitudViaje crearSolicitud(int idNodoDestino) {
-        // TODO: Instanciar y retornar una SolicitudViaje vinculando este usuario, su origen y el destino elegido.
-        return null;
+        /*System.out.println("[SISTEMA] -> " + this.getIdUsuario() + " ha creado una solicitud desde el Nodo " 
+         + this.getNodoInterseccion() + " hacia el Nodo " + idNodoDestino);*/ 
+        return (new SolicitudViaje(this, idNodoDestino));
     }
 
     // GETTERS Y SETTERS
     public String getIdUsuario() { return idUsuario; }
     public int getIdNodoInterseccion() { return idNodoInterseccion; }
+
+    public void setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+    public void setIdNodoInterseccion(int idNodoInterseccion) {
+        this.idNodoInterseccion = idNodoInterseccion;
+    }
+
+    public String toString() {
+        return "Usuario{" +
+                "id='" + this.getIdUsuario() + '\'' +
+                ", esquinaActual=" + this.getIdNodoInterseccion() +
+                '}';
+    }
+    
 }

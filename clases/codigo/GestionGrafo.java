@@ -1,5 +1,4 @@
 package clases.codigo;
-
 import contenedores.ListaDoubleLinkedL;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,8 +51,7 @@ public class GestionGrafo {
             System.out.println("Total de nodos (esquinas/puntos): " + N);
 
             // 3. Inicilizamos nuestro Grafo con N vertices
-            GrafoD grafo= new GrafoD(N);
-
+            this.grafo = new GrafoD(N);
             // 4. Llenar la matriz evaluando el sentido de la calle, calculamos costo de tiempo y conectamos las aristas
             for (int i = 0; i < features.length(); i++) {
                 JSONObject f = features.getJSONObject(i);
@@ -112,6 +110,12 @@ public class GestionGrafo {
     //Solo que este me devuelve CalculoETA
 
     public CalculoETA calcularRutaOptima(int idOrigenUnidad, int idDestinoPasajero) {
+        // Validación defensiva: si el ID no existe en el rango del grafo, evitamos el crash
+        if (idOrigenUnidad < 0 || idOrigenUnidad >= this.grafo.getOrden() || 
+            idDestinoPasajero < 0 || idDestinoPasajero >= this.grafo.getOrden()) {
+            System.out.println("[ERROR] Uno de los IDs de nodo está fuera de rango (0 a " + (this.grafo.getOrden()-1) + ")");
+            return null;
+        }
         //Llamamos al metodo Dijkstra
         this.grafo.Dijkstra(idOrigenUnidad);
 

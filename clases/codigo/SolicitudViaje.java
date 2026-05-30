@@ -3,14 +3,13 @@ package clases.codigo;
 import contenedores.ColaPrioridad;
 import contenedores.ColaPrioridadETA;
 import contenedores.ColaSLinkedList;
-import contenedores.ElementoPrioridad;
 import recursos.Nodo;
 
 /**
  * Clase encargada de coordinar la petición de un usuario, evaluar las unidades cercanas,
  * ordenarlas por prioridad de arribo y efectuar el despacho final.
  */
-public class SolicitudViaje{
+public class SolicitudViaje {
     // ATRIBUTOS
     private Usuario pasajero;
     private int idNodoDestino;
@@ -25,90 +24,103 @@ public class SolicitudViaje{
     /**
      * Ejecuta el Matching Engine: evalúa qué unidades disponibles están más cerca en tiempo
      * utilizando el grafo, las encola por prioridad y les asigna el viaje.
-     * * @param listaUnidadesSistema Lista con todas las unidades registradas.
+     * * @param listaUnidadesSistema Lista con todas las unidades registradas (ColaSLinkedList).
      * @param motorGrafo Instancia activa de GestionGrafo para consultar Dijkstra.
      */
     public void procesarYDespachar(Object listaUnidadesSistema, GestionGrafo motorGrafo) {
-       ColaPrioridad colaPrioridadVehiculos = new ColaPrioridadETA();
-       Nodo actual= ((ColaSLinkedList)listaUnidadesSistema).getPrimero();
-        while (actual!=null) {
-            Unidad unidad=(Unidad)actual.getNodoInfo();
+        // 1. Instanciar la cola de prioridad concreta que maneja los ETAs
+        ColaPrioridad colaPrioridadVehiculos = new ColaPrioridadETA();
+        
+        // 2. Obtener el primer nodo de la cola general de unidades del sistema
+        Nodo actual = ((ColaSLinkedList) listaUnidadesSistema).getPrimero();
+        
+        // 3. Filtrar unidades e insertarlas ordenadas por prioridad
+        while (actual != null) {
+            Unidad unidad = (Unidad) actual.getNodoInfo();
+            
+            // Evaluamos solo si el vehículo no está ocupado en otro viaje
             if (unidad.isDisponible()) {
-                CalculoETA resultadoETA = motorGrafo.calcularRutaOptima(unidad.getIdNodoActual(), this.pasajero.getIdNodoInterseccion());
-                if (resultadoETA!=null) {
-                    ElementoPrioridad elemento = new ElementoPrioridad(unidad, resultadoETA.getTiempoSegundos());
-                    colaPrioridadVehiculos.meter(elemento);
+                // Calculamos el camino mínimo con Dijkstra a través del controlador del grafo
+                CalculoETA resultadoETA = motorGrafo.calcularRutaOptima(unidad.getIdNodoActual(), this.getPasajero().getIdNodoInterseccion());
+                
+                if (resultadoETA != null) {
+                    // Seteamos el ETA en el atributo temporal de la unidad para que ColaPrioridadETA pueda compararlo
+                    unidad.setEtaTemporal(resultadoETA.getTiempoSegundos());
+                    
+                    // Al meterlo, tu estructura abstracta llamará a esMenor() y lo acomodará en su lugar correspondiente
+                    colaPrioridadVehiculos.meter(unidad);
                 }
             }
-            actual=actual.getNextNodo();
+            // Avanzamos al siguiente nodo de la estructura enlazada
+            actual = actual.getNextNodo();
         }
+        
+        // 4. El Bucle de Despacho (Matching Core)
         boolean viajeDespachado = false;
-        /*System.out.println("\n=== INICIANDO PROCESO DE DESPACHO ===");
-        System.out.println("Usuario: " + pasajero.getIdUsuario() + " en Nodo ID: " + pasajero.getIdNodoInterseccion());*/
+        
+        System.out.println("\n=== INICIANDO PROCESO DE DESPACHO ===");
+        System.out.println("Pasajero: " + this.getPasajero().getIdUsuario() + " | Ubicación Nodo: " + this.getPasajero().getIdNodoInterseccion());
+        
+        // Consumimos la cola de prioridad ofreciendo el viaje al taxi más cercano primero
         while (!colaPrioridadVehiculos.estaVacia() && !viajeDespachado) {
-            //elemento con menor ETA
-            ElementoPrioridad envuelto = (ElementoPrioridad) colaPrioridadVehiculos.sacar();
-            Unidad unidadCercana = envuelto.getUnidad();
+            
+            // Extraemos la unidad con menor ETA (la que quedó al frente de la cola)
+            Unidad unidadCercana = (Unidad) colaPrioridadVehiculos.sacar();
+            
+            // Simulación probabilística de si el taxista acepta o rechaza el viaje en su app
             boolean aceptaViaje = unidadCercana.simularAceptacionViaje();
+            
             if (aceptaViaje) {
-                this.setUnidadAsignada(unidadCercana);// se le asigna esa unidad si esta disponible
-                this.getUnidadAsignada().setDisponible(false);//cambia estado
-                this.setEtaFinal(motorGrafo.calcularRutaOptima(this.getUnidadAsignada().getIdNodoActual(), this.getPasajero().getIdNodoInterseccion()));
+                // El viaje fue aceptado con éxito
+                this.setUnidadAsignada(unidadCercana);
+                unidadCercana.setDisponible(false); // Cambia el estado de la unidad a ocupada
+                
+                // Guardamos el cálculo del ETA final y definitivo para la solicitud
+                this.setEtaFinal(motorGrafo.calcularRutaOptima(unidadCercana.getIdNodoActual(), this.getPasajero().getIdNodoInterseccion()));
+                
                 viajeDespachado = true;
-               /*  System.out.println("Solicitud ACEPTADA por: " + this.getUnidadAsignada().getIdVehiculo());*/
-            }else{
-                /*System.out.println("Denegado... El vehículo " + unidadCercana.getIdVehiculo() + " rechazó la alerta. Buscando al siguiente más cercano...");*/
+                System.out.println("[OK] -> Solicitud ACEPTADA por: " + unidadCercana.getIdVehiculo());
+            } else {
+                // El taxista la rechazó (probabilidad < 80%), el bucle continúa con la siguiente unidad de la cola
+                System.out.println("[RECHAZADO] -> El vehículo " + unidadCercana.getIdVehiculo() + " rechazó la alerta. Buscando al siguiente más cercano...");
             }
         }
-        if (!viajeDespachado) { // Verificación y cierre del estado del despacho
-            /*System.out.println("\nError... No se pudo asignar vehículo. Todas las unidades cercanas rechazaron o no hay taxis disponibles.");*/
+        
+        // 5. Cierre y verificación del estado del despacho
+        if (!viajeDespachado) {
+            System.out.println("\n[ERROR]: No se pudo asignar vehículo. Todas las unidades cercanas rechazaron o no hay taxis disponibles.");
             this.setUnidadAsignada(null);
             this.setEtaFinal(null);
-        }else{
-            this.mostrarDetalleDespacho();//cambiar con la interfaz grafica luego
+        } else {
+            // Si se concretó, se muestran los datos consolidados del despacho
+            this.mostrarDetalleDespacho();
         }
     }
 
     /**
-     * Muestra en el Dashboard la información consolidada del despacho.
+     * Muestra en consola la información consolidada del despacho exitoso.
      */
     public void mostrarDetalleDespacho() {
-        // Imprime el resultado en consola simulando la interfaz:
-        System.out.println("Usuario:"+ this.getPasajero().getIdUsuario() +"|"+ "->"+
-         "Destino:" +this.getIdNodoDestino()+"|"+ "Asignado a:"+
-         this.getUnidadAsignada().getIdVehiculo()+ "|"+ "ETA:" +this.getEtaFinal());
+        System.out.println("\n========================================");
+        System.out.println("   VIAJE DESPACHADO CON ÉXITO");
+        System.out.println("========================================");
+        System.out.println("Usuario           : " + this.getPasajero().getIdUsuario());
+        System.out.println("Nodo Destino      : " + this.getIdNodoDestino());
+        System.out.println("Vehículo Asignado : " + this.getUnidadAsignada().getIdVehiculo());
+        System.out.println("ETA de Arribo     : " + this.getEtaFinal().obtenerTiempoFormateado());
+        System.out.println("========================================\n");
     }
 
-    public Usuario getPasajero() {
-        return pasajero;
-    }
+    // GETTERS Y SETTERS
+    public Usuario getPasajero() { return pasajero; }
+    public void setPasajero(Usuario pasajero) { this.pasajero = pasajero; }
 
-    public void setPasajero(Usuario pasajero) {
-        this.pasajero = pasajero;
-    }
+    public int getIdNodoDestino() { return idNodoDestino; }
+    public void setIdNodoDestino(int idNodoDestino) { this.idNodoDestino = idNodoDestino; }
 
-    public int getIdNodoDestino() {
-        return idNodoDestino;
-    }
+    public Unidad getUnidadAsignada() { return unidadAsignada; }
+    public void setUnidadAsignada(Unidad unidadAsignada) { this.unidadAsignada = unidadAsignada; }
 
-    public void setIdNodoDestino(int idNodoDestino) {
-        this.idNodoDestino = idNodoDestino;
-    }
-
-    public Unidad getUnidadAsignada() {
-        return unidadAsignada;
-    }
-
-    public void setUnidadAsignada(Unidad unidadAsignada) {
-        this.unidadAsignada = unidadAsignada;
-    }
-
-    public CalculoETA getEtaFinal() {
-        return etaFinal;
-    }
-
-    public void setEtaFinal(CalculoETA etaFinal) {
-        this.etaFinal = etaFinal;
-    }
-    
+    public CalculoETA getEtaFinal() { return etaFinal; }
+    public void setEtaFinal(CalculoETA etaFinal) { this.etaFinal = etaFinal; }
 }
