@@ -1,7 +1,7 @@
 package clases.codigo;
 
 public class CalculoDistancia {
-    public static double RADIO_TIERRA= 6371*10000;
+    public static double RADIO_TIERRA= 6371*1000;
 
     /**
      * ¿Qué distancia fisica hay entre dos puntos GPS?

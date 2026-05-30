@@ -52,6 +52,13 @@ int nodoOrigenFranco = 5;
 int nodoDestinoFranco = 15;
 
 Usuario pasajero = new Usuario("Franco", nodoOrigenFranco);
+SolicitudViaje solicitud = new SolicitudViaje(pasajero, nodoDestinoFranco);
+
+// 5. Procesar y despachar
+solicitud.procesarYDespachar(listaUnidadesSistema, motorGrafo);
+
+// 6. Simular la finalización del viaje: actualizar posición del taxi
+solicitud.completarViaje();
 System.out.println("[SISTEMA] -> Pasajero registrado: " + pasajero.getIdUsuario() 
                    + " esperando en Nodo Intersección ID: " + pasajero.getIdNodoInterseccion());
         System.out.println("=====================================================================");

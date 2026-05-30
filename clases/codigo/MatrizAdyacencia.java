@@ -44,7 +44,7 @@ public class MatrizAdyacencia {
 
 
     public void registrarConexion(int origenId, int destinoId, double valor){
-        if (esValido(origenId) && esValido(origenId)) {
+        if (esValido(origenId) && esValido(destinoId)) {
             this.matriz[origenId][destinoId]= valor;
         }
         else{

@@ -27,7 +27,7 @@ public class Unidad {
     public boolean simularAceptacionViaje() {
        boolean estado;
        Random random=new Random();
-       if (random.nextDouble()>=0.80) {
+       if (random.nextDouble() <= 0.90) {
         estado=true;
        }else{
         estado=false;

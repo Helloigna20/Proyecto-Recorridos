@@ -142,5 +142,6 @@ public class GestionGrafo {
 
         }
     }
+    public GrafoD getGrafoD(){return this.grafo;}
 
 }

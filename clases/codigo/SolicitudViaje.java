@@ -110,6 +110,16 @@ public class SolicitudViaje {
         System.out.println("ETA de Arribo     : " + this.getEtaFinal().obtenerTiempoFormateado());
         System.out.println("========================================\n");
     }
+    public void completarViaje() {
+    if (this.unidadAsignada != null && this.etaFinal != null) {
+        //  Actualiza posición del taxi al destino del pasajero
+        this.unidadAsignada.setIdNodoActual(this.idNodoDestino);
+        this.unidadAsignada.setDisponible(true);
+        this.unidadAsignada.setEtaTemporal(0.0);
+        System.out.println("[COMPLETADO] -> " + this.unidadAsignada.getIdVehiculo() 
+            + " llegó a nodo " + this.idNodoDestino + " y está disponible");
+    }
+}
 
     // GETTERS Y SETTERS
     public Usuario getPasajero() { return pasajero; }
