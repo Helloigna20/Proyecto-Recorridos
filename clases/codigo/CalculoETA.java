@@ -29,7 +29,7 @@ public class CalculoETA {
             return segundos+ " seg";
         }
         else{
-            return minutos+" min";
+            return minutos+" min"+segundos+ " seg";
         }
     }
 

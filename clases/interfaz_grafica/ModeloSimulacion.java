@@ -195,8 +195,8 @@ public class ModeloSimulacion {
 
         sol.procesarYDespachar(flota, motorGrafo);
 
-        if (sol.getUnidadAsignada() != null && sol.getEtaFinal() != null) {
-            List<Integer> rutaPickup = extraerRutaList(sol.getEtaFinal().getRutaNodos());
+        if (sol.getUnidadAsignada() != null && sol.getEtaDespacho() != null) {
+            List<Integer> rutaPickup = extraerRutaList(sol.getEtaDespacho().getRutaNodos());
             rutaNodos.addAll(rutaPickup);
             
             List<Integer> rutaDrop = extraerRutaList(etaDestino.getRutaNodos());

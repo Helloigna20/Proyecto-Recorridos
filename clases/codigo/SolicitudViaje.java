@@ -14,7 +14,8 @@ public class SolicitudViaje {
     private Usuario pasajero;
     private int idNodoDestino;
     private Unidad unidadAsignada;
-    private CalculoETA etaFinal;
+    private CalculoETA etaDespacho;
+    private CalculoETA etaViaje;
 
     public SolicitudViaje(Usuario pasajero, int idNodoDestino) {
         this.setPasajero(pasajero);
@@ -46,7 +47,6 @@ public class SolicitudViaje {
                 if (resultadoETA != null) {
                     // Seteamos el ETA en el atributo temporal de la unidad para que ColaPrioridadETA pueda compararlo
                     unidad.setEtaTemporal(resultadoETA.getTiempoSegundos());
-                    
                     // Al meterlo, tu estructura abstracta llamará a esMenor() y lo acomodará en su lugar correspondiente
                     colaPrioridadVehiculos.meter(unidad);
                 }
@@ -55,7 +55,7 @@ public class SolicitudViaje {
             actual = actual.getNextNodo();
         }
         
-        // 4. El Bucle de Despacho (Matching Core)
+        // 4. El Bucle de Despacho (Matching Core): asignamos y calculamos el viaje real
         boolean viajeDespachado = false;
         
         System.out.println("\n=== INICIANDO PROCESO DE DESPACHO ===");
@@ -63,7 +63,6 @@ public class SolicitudViaje {
         
         // Consumimos la cola de prioridad ofreciendo el viaje al taxi más cercano primero
         while (!colaPrioridadVehiculos.estaVacia() && !viajeDespachado) {
-            
             // Extraemos la unidad con menor ETA (la que quedó al frente de la cola)
             Unidad unidadCercana = (Unidad) colaPrioridadVehiculos.sacar();
             
@@ -75,9 +74,12 @@ public class SolicitudViaje {
                 this.setUnidadAsignada(unidadCercana);
                 unidadCercana.setDisponible(false); // Cambia el estado de la unidad a ocupada
                 
-                // Guardamos el cálculo del ETA final y definitivo para la solicitud
-                this.setEtaFinal(motorGrafo.calcularRutaOptima(unidadCercana.getIdNodoActual(), this.getPasajero().getIdNodoInterseccion()));
-                
+                // Guardamos el cálculo del ETA de despacho y definitivo para la solicitud
+                this.setEtaDespacho(motorGrafo.calcularRutaOptima(unidadCercana.getIdNodoActual(), this.getPasajero().getIdNodoInterseccion()));
+
+                // Guardamos el calculo del ETA del viaje Real (Pasajero, destino Final);
+                this.setEtaViaje(motorGrafo.calcularRutaOptima(this.getPasajero().getIdNodoInterseccion(), this.getIdNodoDestino()));
+
                 viajeDespachado = true;
                 System.out.println("[OK] -> Solicitud ACEPTADA por: " + unidadCercana.getIdVehiculo());
             } else {
@@ -90,7 +92,8 @@ public class SolicitudViaje {
         if (!viajeDespachado) {
             System.out.println("\n[ERROR]: No se pudo asignar vehículo. Todas las unidades cercanas rechazaron o no hay taxis disponibles.");
             this.setUnidadAsignada(null);
-            this.setEtaFinal(null);
+            this.setEtaDespacho(null);
+            this.setEtaViaje(null);
         } else {
             // Si se concretó, se muestran los datos consolidados del despacho
             this.mostrarDetalleDespacho();
@@ -107,11 +110,12 @@ public class SolicitudViaje {
         System.out.println("Usuario           : " + this.getPasajero().getIdUsuario());
         System.out.println("Nodo Destino      : " + this.getIdNodoDestino());
         System.out.println("Vehículo Asignado : " + this.getUnidadAsignada().getIdVehiculo());
-        System.out.println("ETA de Arribo     : " + this.getEtaFinal().obtenerTiempoFormateado());
+        System.out.println("ETA de Arribo     : " + this.getEtaDespacho().obtenerTiempoFormateado());
+        System.out.println("Duración del viaje: " + this.getEtaViaje().obtenerTiempoFormateado());
         System.out.println("========================================\n");
     }
     public void completarViaje() {
-    if (this.unidadAsignada != null && this.etaFinal != null) {
+    if (this.unidadAsignada != null && this.etaDespacho != null) {
         //  Actualiza posición del taxi al destino del pasajero
         this.unidadAsignada.setIdNodoActual(this.idNodoDestino);
         this.unidadAsignada.setDisponible(true);
@@ -131,6 +135,14 @@ public class SolicitudViaje {
     public Unidad getUnidadAsignada() { return unidadAsignada; }
     public void setUnidadAsignada(Unidad unidadAsignada) { this.unidadAsignada = unidadAsignada; }
 
-    public CalculoETA getEtaFinal() { return etaFinal; }
-    public void setEtaFinal(CalculoETA etaFinal) { this.etaFinal = etaFinal; }
+    public CalculoETA getEtaDespacho() { return etaDespacho; }
+    public void setEtaDespacho(CalculoETA etaDespacho) { this.etaDespacho = etaDespacho; }
+
+    public CalculoETA getEtaViaje() {
+        return etaViaje;
+    }
+
+    public void setEtaViaje(CalculoETA etaViaje) {
+        this.etaViaje = etaViaje;
+    }
 }

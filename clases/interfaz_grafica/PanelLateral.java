@@ -215,7 +215,7 @@ public class PanelLateral extends JPanel {
         card.setOpaque(false);
         card.setBorder(new EmptyBorder(12, 14, 12, 14));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, Short.MAX_VALUE));
 
         // --- Fila superior: usuario + badge estado ---
         JPanel filaSuperior = new JPanel(new BorderLayout());
@@ -247,7 +247,9 @@ public class PanelLateral extends JPanel {
         cuerpo.add(lblRuta);
 
         if (exito) {
-            String eta    = solicitud.getEtaFinal().obtenerTiempoFormateado();
+            String eta    = solicitud.getEtaDespacho().obtenerTiempoFormateado();
+            String eta2   = solicitud.getEtaViaje().obtenerTiempoFormateado();
+
             String vehic  = solicitud.getUnidadAsignada().getIdVehiculo();
 
             JLabel lblVehiculo = new JLabel("🚕 " + vehic);
@@ -255,12 +257,23 @@ public class PanelLateral extends JPanel {
             lblVehiculo.setForeground(COLOR_TEXTO_SEC);
             cuerpo.add(lblVehiculo);
 
-            JLabel lblETA = new JLabel("⏱ ETA: " + eta
-                          + "   |   " + rutaNodos.size() + " nodos recorridos");
+            int nodosDespacho = solicitud.getEtaDespacho().getRutaNodos().tamanio();
+            int nodosViaje    = solicitud.getEtaViaje().getRutaNodos().tamanio();
+
+            JLabel lblETA = new JLabel("⏱ ETA ARRIBO TAXI: " + eta
+                          + "   |   " + nodosDespacho + " nodos recorridos");
+
+            JLabel lblViaje = new JLabel("⏱ ETA ARRIBO PASAJERO: " + eta2
+                    + "   |   " + nodosViaje + " nodos recorridos");
+
             lblETA.setFont(new Font("SansSerif", Font.PLAIN, 11));
             lblETA.setForeground(COLOR_ETA);
-            lblETA.setBorder(new EmptyBorder(2, 0, 0, 0));
+            lblETA.setBorder(new EmptyBorder(4, 0, 0, 0));
             cuerpo.add(lblETA);
+
+            lblViaje.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            lblViaje.setBorder(new EmptyBorder(2, 0, 0, 0));
+            cuerpo.add(lblViaje);
         } else {
             JLabel lblFail = new JLabel("No se encontró unidad disponible.");
             lblFail.setFont(new Font("SansSerif", Font.ITALIC, 11));
