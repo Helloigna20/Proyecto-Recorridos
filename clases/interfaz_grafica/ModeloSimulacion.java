@@ -174,7 +174,7 @@ public class ModeloSimulacion {
 
             totalNodos = contadorId;
             motorGrafo.cargarMapaDesdeArchivo(rutaArchivo);
-            crearFlotaInicial(8);
+            crearFlotaInicial(10);
             mapaListo = true;
 
             for (Listener l : listeners)
