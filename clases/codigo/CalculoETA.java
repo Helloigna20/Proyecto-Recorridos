@@ -22,11 +22,15 @@ public class CalculoETA {
     //Creo que este sabemos qué hace...
 
     public String obtenerTiempoFormateado() {
-        int minutos  = (int) tiempoSegundos / 60;
-        int segundos = (int) tiempoSegundos % 60;
-        if (minutos == 0) return segundos + " seg";
-        if (segundos == 0) return minutos + " min";
-        return minutos + " min " + segundos + " seg";
+        int minutos= (int)tiempoSegundos / 60;
+        int segundos= (int)tiempoSegundos % 60;
+
+        if(minutos==0){
+            return segundos+ " seg";
+        }
+        else{
+            return minutos+" min"+segundos+ " seg";
+        }
     }
 
     // GETTERS

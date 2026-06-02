@@ -191,7 +191,7 @@ public class VentanaPrincipal extends JFrame {
 
                     boolean exito = solicitud.getUnidadAsignada() != null;
                     if (exito) {
-                        String eta = solicitud.getEtaFinal().obtenerTiempoFormateado();
+                        String eta = solicitud.getEtaDespacho().obtenerTiempoFormateado();
                         lblEstado.setText("🚕  Viaje despachado → "
                             + solicitud.getUnidadAsignada().getIdVehiculo()
                             + " | ETA arribo: " + eta + " (Animación en progreso, podés elegir otra).");

@@ -213,7 +213,7 @@ public class PanelLateral extends JPanel {
         card.setOpaque(false);
         card.setBorder(new EmptyBorder(12, 14, 12, 14));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, Short.MAX_VALUE));
 
         // --- Fila superior: usuario + badge estado ---
         JPanel filaSuperior = new JPanel(new BorderLayout());
@@ -245,26 +245,33 @@ public class PanelLateral extends JPanel {
         cuerpo.add(lblRuta);
 
         if (exito) {
-            String etaArribo   = solicitud.getEtaFinal().obtenerTiempoFormateado();
-            String etaDestino  = formatearSegundos(etaDestinoSegundos);
-            String vehic       = solicitud.getUnidadAsignada().getIdVehiculo();
+            String eta    = solicitud.getEtaDespacho().obtenerTiempoFormateado();
+            String eta2   = solicitud.getEtaViaje().obtenerTiempoFormateado();
+
+            String vehic  = solicitud.getUnidadAsignada().getIdVehiculo();
 
             JLabel lblVehiculo = new JLabel("🚕 " + vehic);
             lblVehiculo.setFont(new Font("SansSerif", Font.PLAIN, 11));
             lblVehiculo.setForeground(COLOR_TEXTO_SEC);
             cuerpo.add(lblVehiculo);
 
-            JLabel lblEtaArribo = new JLabel("⏱ ETA arribo del taxi: " + etaArribo);
-            lblEtaArribo.setFont(new Font("SansSerif", Font.PLAIN, 11));
-            lblEtaArribo.setForeground(COLOR_ETA);
-            lblEtaArribo.setBorder(new EmptyBorder(2, 0, 0, 0));
-            cuerpo.add(lblEtaArribo);
+            int nodosDespacho = solicitud.getEtaDespacho().getRutaNodos().tamanio();
+            int nodosViaje    = solicitud.getEtaViaje().getRutaNodos().tamanio();
 
-            JLabel lblEtaViaje = new JLabel("🏁 ETA hasta destino: " + etaDestino);
-            lblEtaViaje.setFont(new Font("SansSerif", Font.PLAIN, 11));
-            lblEtaViaje.setForeground(new Color(0x42A5F5));
-            lblEtaViaje.setBorder(new EmptyBorder(1, 0, 0, 0));
-            cuerpo.add(lblEtaViaje);
+            JLabel lblETA = new JLabel("⏱ ETA ARRIBO TAXI: " + eta
+                          + "   |   " + nodosDespacho + " nodos recorridos");
+
+            JLabel lblViaje = new JLabel("⏱ ETA ARRIBO PASAJERO: " + eta2
+                    + "   |   " + nodosViaje + " nodos recorridos");
+
+            lblETA.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            lblETA.setForeground(COLOR_ETA);
+            lblETA.setBorder(new EmptyBorder(4, 0, 0, 0));
+            cuerpo.add(lblETA);
+
+            lblViaje.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            lblViaje.setBorder(new EmptyBorder(2, 0, 0, 0));
+            cuerpo.add(lblViaje);
         } else {
             JLabel lblFail = new JLabel("No se encontró unidad disponible.");
             lblFail.setFont(new Font("SansSerif", Font.ITALIC, 11));
