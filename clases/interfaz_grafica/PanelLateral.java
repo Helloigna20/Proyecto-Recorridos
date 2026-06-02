@@ -16,20 +16,20 @@ import java.util.List;
 public class PanelLateral extends JPanel {
 
     // ============================================================
-    //  PALETA
+    //  PALETA — MODO OSCURO
     // ============================================================
-    private static final Color COLOR_BG         = new Color(0xF8F9FA);
-    private static final Color COLOR_CARD        = Color.WHITE;
-    private static final Color COLOR_HEADER_BG   = new Color(0xFFFFFF);
-    private static final Color COLOR_BORDER      = new Color(0xE9ECEF);
-    private static final Color COLOR_TEXTO       = new Color(0x212529);
-    private static final Color COLOR_TEXTO_SEC   = new Color(0x6C757D);
-    private static final Color COLOR_DISP        = new Color(0x198754);
-    private static final Color COLOR_OCUP        = new Color(0x6C757D);
-    private static final Color COLOR_BADGE_OK    = new Color(0x198754);
-    private static final Color COLOR_BADGE_FAIL  = new Color(0xDC3545);
-    private static final Color COLOR_RUTA        = new Color(0x0D6EFD);
-    private static final Color COLOR_ETA         = new Color(0x495057);
+    private static final Color COLOR_BG         = new Color(0x12121E);
+    private static final Color COLOR_CARD        = new Color(0x1E1E30);
+    private static final Color COLOR_HEADER_BG   = new Color(0x1A1A2E);
+    private static final Color COLOR_BORDER      = new Color(0x2A2A3E);
+    private static final Color COLOR_TEXTO       = new Color(0xE0E0E0);
+    private static final Color COLOR_TEXTO_SEC   = new Color(0x78909C);
+    private static final Color COLOR_DISP        = new Color(0x1B5E20);
+    private static final Color COLOR_OCUP        = new Color(0x37474F);
+    private static final Color COLOR_BADGE_OK    = new Color(0x1B5E20);
+    private static final Color COLOR_BADGE_FAIL  = new Color(0xB71C1C);
+    private static final Color COLOR_RUTA        = new Color(0x42A5F5);
+    private static final Color COLOR_ETA         = new Color(0x90A4AE);
 
     // ============================================================
     //  COMPONENTES
@@ -99,7 +99,7 @@ public class PanelLateral extends JPanel {
         scroll.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
             @Override
             protected void configureScrollBarColors() {
-                this.thumbColor = new Color(200, 200, 200);
+                this.thumbColor = new Color(60, 60, 80);
                 this.trackColor = COLOR_BG;
             }
             @Override
@@ -176,22 +176,20 @@ public class PanelLateral extends JPanel {
      * @param solicitud la solicitud procesada
      * @param rutaNodos lista de IDs de nodos de la ruta
      */
-    public void agregarSolicitud(SolicitudViaje solicitud, List<Integer> rutaNodos) {
+    public void agregarSolicitud(SolicitudViaje solicitud, List<Integer> rutaNodos, double etaDestinoSegundos) {
         lblSinSolicitudes.setVisible(false);
 
-        JPanel tarjeta = crearTarjetaSolicitud(solicitud, rutaNodos);
-        panelSolicitudes.add(tarjeta, 0);   // Insertar al tope (más reciente primero)
+        JPanel tarjeta = crearTarjetaSolicitud(solicitud, rutaNodos, etaDestinoSegundos);
+        panelSolicitudes.add(tarjeta, 0);
         panelSolicitudes.add(Box.createVerticalStrut(10), 1);
 
-        // Actualizar chips de flota (estados pueden haber cambiado)
         actualizarFlota();
 
         panelSolicitudes.revalidate();
         panelSolicitudes.repaint();
     }
 
-    /** Construye la tarjeta visual de una solicitud */
-    private JPanel crearTarjetaSolicitud(SolicitudViaje solicitud, List<Integer> rutaNodos) {
+    private JPanel crearTarjetaSolicitud(SolicitudViaje solicitud, List<Integer> rutaNodos, double etaDestinoSegundos) {
         boolean exito = (solicitud.getUnidadAsignada() != null);
 
         JPanel card = new JPanel() {
@@ -199,10 +197,10 @@ public class PanelLateral extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                // Sombra
-                g2.setColor(new Color(0, 0, 0, 18));
+                // Sombra oscura
+                g2.setColor(new Color(0, 0, 0, 40));
                 g2.fillRoundRect(2, 3, getWidth() - 2, getHeight() - 2, 12, 12);
-                // Fondo blanco
+                // Fondo dark card
                 g2.setColor(COLOR_CARD);
                 g2.fillRoundRect(0, 0, getWidth() - 2, getHeight() - 2, 12, 12);
                 // Borde izquierdo de color
@@ -215,7 +213,7 @@ public class PanelLateral extends JPanel {
         card.setOpaque(false);
         card.setBorder(new EmptyBorder(12, 14, 12, 14));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
 
         // --- Fila superior: usuario + badge estado ---
         JPanel filaSuperior = new JPanel(new BorderLayout());
@@ -247,20 +245,26 @@ public class PanelLateral extends JPanel {
         cuerpo.add(lblRuta);
 
         if (exito) {
-            String eta    = solicitud.getEtaFinal().obtenerTiempoFormateado();
-            String vehic  = solicitud.getUnidadAsignada().getIdVehiculo();
+            String etaArribo   = solicitud.getEtaFinal().obtenerTiempoFormateado();
+            String etaDestino  = formatearSegundos(etaDestinoSegundos);
+            String vehic       = solicitud.getUnidadAsignada().getIdVehiculo();
 
             JLabel lblVehiculo = new JLabel("🚕 " + vehic);
             lblVehiculo.setFont(new Font("SansSerif", Font.PLAIN, 11));
             lblVehiculo.setForeground(COLOR_TEXTO_SEC);
             cuerpo.add(lblVehiculo);
 
-            JLabel lblETA = new JLabel("⏱ ETA: " + eta
-                          + "   |   " + rutaNodos.size() + " nodos recorridos");
-            lblETA.setFont(new Font("SansSerif", Font.PLAIN, 11));
-            lblETA.setForeground(COLOR_ETA);
-            lblETA.setBorder(new EmptyBorder(2, 0, 0, 0));
-            cuerpo.add(lblETA);
+            JLabel lblEtaArribo = new JLabel("⏱ ETA arribo del taxi: " + etaArribo);
+            lblEtaArribo.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            lblEtaArribo.setForeground(COLOR_ETA);
+            lblEtaArribo.setBorder(new EmptyBorder(2, 0, 0, 0));
+            cuerpo.add(lblEtaArribo);
+
+            JLabel lblEtaViaje = new JLabel("🏁 ETA hasta destino: " + etaDestino);
+            lblEtaViaje.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            lblEtaViaje.setForeground(new Color(0x42A5F5));
+            lblEtaViaje.setBorder(new EmptyBorder(1, 0, 0, 0));
+            cuerpo.add(lblEtaViaje);
         } else {
             JLabel lblFail = new JLabel("No se encontró unidad disponible.");
             lblFail.setFont(new Font("SansSerif", Font.ITALIC, 11));
@@ -296,6 +300,15 @@ public class PanelLateral extends JPanel {
     // ============================================================
     //  HELPERS
     // ============================================================
+    private String formatearSegundos(double totalSegundos) {
+        if (totalSegundos < 0) return "N/D";
+        int mins = (int) totalSegundos / 60;
+        int segs = (int) totalSegundos % 60;
+        if (mins == 0) return segs + " seg";
+        if (segs == 0) return mins + " min";
+        return mins + " min " + segs + " seg";
+    }
+
     private JLabel crearTituloSeccion(String texto) {
         JLabel lbl = new JLabel(texto);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 14));

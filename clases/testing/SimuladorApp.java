@@ -14,7 +14,7 @@ public class SimuladorApp {
         GestionGrafo motorGrafo = new GestionGrafo();
         
         // Colocá acá la ruta correcta a tu archivo geojson del mapa de Salta
-        String rutaMapa = "muestra1.geojson"; 
+        String rutaMapa = "archivos/CentroyMacroSALTA.geojson"; 
         
         File archivoMapa = new File(rutaMapa);
         if (!archivoMapa.exists()) {

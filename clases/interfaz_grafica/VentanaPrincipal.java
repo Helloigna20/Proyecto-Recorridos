@@ -16,13 +16,13 @@ import java.util.List;
 public class VentanaPrincipal extends JFrame {
 
     // ============================================================
-    //  PALETA
+    //  PALETA — MODO OSCURO
     // ============================================================
-    private static final Color COLOR_HEADER_BG   = new Color(0x1976D2);
-    private static final Color COLOR_HEADER_TEXT  = Color.WHITE;
-    private static final Color COLOR_STATUS_BG    = new Color(0xE3F2FD);
-    private static final Color COLOR_STATUS_TEXT  = new Color(0x0D47A1);
-    private static final Color COLOR_FONDO        = new Color(0xF0F2F5);
+    private static final Color COLOR_HEADER_BG   = new Color(0x1A1A2E);
+    private static final Color COLOR_HEADER_TEXT  = new Color(0xE0E0E0);
+    private static final Color COLOR_STATUS_BG    = new Color(0x16213E);
+    private static final Color COLOR_STATUS_TEXT  = new Color(0x90CAF9);
+    private static final Color COLOR_FONDO        = new Color(0x0F0F1A);
 
     // ============================================================
     //  COMPONENTES
@@ -34,6 +34,7 @@ public class VentanaPrincipal extends JFrame {
     private JButton  btnNuevaSolicitud;
     private JButton  btnLimpiar;
     private JButton  btnResetTaxis;
+    private JButton  btnAutoSim;
     private JLabel   lblEstado;
     private JLabel   lblCargando;
 
@@ -78,7 +79,7 @@ public class VentanaPrincipal extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 GradientPaint gp = new GradientPaint(
                     0, 0, COLOR_HEADER_BG,
-                    getWidth(), 0, new Color(0x1565C0)
+                    getWidth(), 0, new Color(0x0D0D1F)
                 );
                 g2.setPaint(gp);
                 g2.fillRect(0, 0, getWidth(), getHeight());
@@ -94,17 +95,18 @@ public class VentanaPrincipal extends JFrame {
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         btnPanel.setOpaque(false);
 
-        btnNuevaSolicitud = crearBoton("● NUEVA SOLICITUD", new Color(0x0D47A1), Color.WHITE);
-        btnLimpiar        = crearBoton("LIMPIAR SELECCIÓN", new Color(0x1976D2), Color.WHITE);
+        btnNuevaSolicitud = crearBoton("● NUEVA SOLICITUD", new Color(0x1565C0), Color.WHITE);
+        btnLimpiar        = crearBoton("LIMPIAR SELECCIÓN", new Color(0x263238), new Color(0xB0BEC5));
         btnLimpiar.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.WHITE, 1, true),
+            BorderFactory.createLineBorder(new Color(0x546E7A), 1, true),
             new EmptyBorder(6, 14, 6, 14)
         ));
-        
-        btnResetTaxis = crearBoton("RESETEAR TAXIS", new Color(0x607D8B), Color.WHITE);
+        btnResetTaxis = crearBoton("RESETEAR TAXIS", new Color(0x1B2631), new Color(0x90A4AE));
+        btnAutoSim    = crearBoton("▶  SIMULACIÓN EN TIEMPO REAL", new Color(0x1B5E20), new Color(0xA5D6A7));
 
         btnNuevaSolicitud.setEnabled(false);
 
+        btnPanel.add(btnAutoSim);
         btnPanel.add(btnNuevaSolicitud);
         btnPanel.add(btnLimpiar);
         btnPanel.add(btnResetTaxis);
@@ -125,12 +127,12 @@ public class VentanaPrincipal extends JFrame {
 
         JLabel lblMapa = new JLabel("Mapa de Intersecciones — Salta Capital");
         lblMapa.setFont(new Font("SansSerif", Font.BOLD, 13));
-        lblMapa.setForeground(new Color(0x495057));
+        lblMapa.setForeground(new Color(0x90CAF9));
         lblMapa.setBorder(new EmptyBorder(0, 0, 8, 0));
 
         lblCargando = new JLabel("  ⏳ Cargando mapa...");
         lblCargando.setFont(new Font("SansSerif", Font.ITALIC, 12));
-        lblCargando.setForeground(new Color(0x6C757D));
+        lblCargando.setForeground(new Color(0x546E7A));
 
         JPanel filaTitulo = new JPanel(new BorderLayout());
         filaTitulo.setOpaque(false);
@@ -150,7 +152,7 @@ public class VentanaPrincipal extends JFrame {
         JPanel barra = new JPanel(new BorderLayout(0, 0));
         barra.setBackground(COLOR_STATUS_BG);
         barra.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(0xBBDEFB)),
+            BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(0x1A237E)),
             new EmptyBorder(6, 16, 6, 16)
         ));
 
@@ -175,15 +177,16 @@ public class VentanaPrincipal extends JFrame {
                     lblEstado.setText("✅  Mapa listo: " + totalNodos + " intersecciones | "
                                     + totalAristas + " conexiones. Hacé clic en dos nodos para simular un viaje.");
                     btnNuevaSolicitud.setEnabled(false);
+                    btnAutoSim.setEnabled(true);
                     panelMapa.onMapaCargado();
                     panelLateral.actualizarFlota();
                 });
             }
 
             @Override
-            public void onSolicitudProcesada(SolicitudViaje solicitud, List<Integer> rutaNodos) {
+            public void onSolicitudProcesada(SolicitudViaje solicitud, List<Integer> rutaNodos, double etaDestinoSegundos) {
                 SwingUtilities.invokeLater(() -> {
-                    panelLateral.agregarSolicitud(solicitud, rutaNodos);
+                    panelLateral.agregarSolicitud(solicitud, rutaNodos, etaDestinoSegundos);
                     panelMapa.limpiarSeleccion();
 
                     boolean exito = solicitud.getUnidadAsignada() != null;
@@ -191,7 +194,7 @@ public class VentanaPrincipal extends JFrame {
                         String eta = solicitud.getEtaFinal().obtenerTiempoFormateado();
                         lblEstado.setText("🚕  Viaje despachado → "
                             + solicitud.getUnidadAsignada().getIdVehiculo()
-                            + " | ETA: " + eta + " (Animación en progreso, podés elegir otra).");
+                            + " | ETA arribo: " + eta + " (Animación en progreso, podés elegir otra).");
                     } else {
                         lblEstado.setText("⚠️  No se pudo asignar vehículo. Todos rechazaron o no hay disponibles.");
                     }
@@ -280,18 +283,36 @@ public class VentanaPrincipal extends JFrame {
         });
 
         btnResetTaxis.addActionListener(e -> {
+            modelo.detenerSimulacionAutomatica();
+            btnAutoSim.setText("▶  SIMULACIÓN EN TIEMPO REAL");
+            btnAutoSim.setBackground(new Color(0x1B5E20));
             modelo.reposicionarTaxisAlAzar();
             lblEstado.setText("🔄  Flota reposicionada aleatoriamente. Se han cancelado los viajes en curso.");
             panelMapa.limpiarSeleccion();
             btnNuevaSolicitud.setEnabled(false);
         });
+
+        btnAutoSim.setEnabled(false); // se habilita al cargar el mapa
+        btnAutoSim.addActionListener(e -> {
+            if (modelo.isAutoSimActiva()) {
+                modelo.detenerSimulacionAutomatica();
+                btnAutoSim.setText("▶  SIMULACIÓN EN TIEMPO REAL");
+                lblEstado.setText("⏹  Simulación automática detenida.");
+            } else {
+                modelo.iniciarSimulacionAutomatica();
+                btnAutoSim.setText("⏹  DETENER SIMULACIÓN");
+                lblEstado.setText("🚦  Simulación en tiempo real activa — se generan viajes aleatorios automáticamente.");
+                panelMapa.limpiarSeleccion();
+                btnNuevaSolicitud.setEnabled(false);
+            }
+        });
     }
 
     private void iniciarCargaMapa() {
         String[] rutas = {
-            "muestra1.geojson",
-            "archivos/muestra1.geojson",
-            "archivos\\muestra1.geojson"
+            "CentroyMacroSALTA.geojson",
+            "archivos/CentroyMacroSALTA.geojson",
+            "archivos\\CentroyMacroSALTA.geojson"
         };
 
         String rutaEncontrada = null;
@@ -304,7 +325,7 @@ public class VentanaPrincipal extends JFrame {
 
         if (rutaEncontrada == null) {
             JFileChooser chooser = new JFileChooser(".");
-            chooser.setDialogTitle("Seleccioná el archivo muestra1.geojson");
+            chooser.setDialogTitle("Seleccioná el archivo CentroyMacroSALTA.geojson");
             chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
                 "GeoJSON (*.geojson, *.json)", "geojson", "json"));
             int result = chooser.showOpenDialog(this);

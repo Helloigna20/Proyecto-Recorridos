@@ -18,7 +18,7 @@ public class ModeloSimulacion {
 
     public interface Listener {
         void onMapaCargado(int totalNodos, int totalAristas);
-        void onSolicitudProcesada(SolicitudViaje solicitud, List<Integer> rutaNodos);
+        void onSolicitudProcesada(SolicitudViaje solicitud, List<Integer> rutaNodos, double etaDestinoSegundos);
         void onError(String mensaje);
         void onTick();
         void onViajesActualizados();
@@ -39,9 +39,14 @@ public class ModeloSimulacion {
         public List<Integer> rutaCompleta;
         public int indiceActual;
         public SolicitudViaje solicitud;
+        public int nodoPickup;       // nodo donde el taxi recoge al pasajero
+        public int pausaTicks = 0;   // ticks restantes de pausa en el pickup
     }
     private final List<ViajeActivo> viajesActivos;
     private Timer timer;
+    private Timer timerAutoSim;
+    private boolean autoSimActiva = false;
+    private final Random rndAutoSim = new Random();
 
     private int    totalNodos  = 0;
     private double minLng, maxLng, minLat, maxLat;
@@ -53,7 +58,7 @@ public class ModeloSimulacion {
         this.aristas              = new ArrayList<>();
         this.flota                = new ColaSLinkedList();
         this.listaUnidades        = new ArrayList<>();
-        this.historialSolicitudes = new CopyOnWriteArrayList<>();
+        this.historialSolicitudes = new CopyOnWriteArrayList<>();//crea una copia subyacente del array original
         this.historialRutas       = new CopyOnWriteArrayList<>();
         this.listeners            = new CopyOnWriteArrayList<>();
         this.viajesActivos        = new CopyOnWriteArrayList<>();
@@ -71,9 +76,31 @@ public class ModeloSimulacion {
 
             for (int i = viajesActivos.size() - 1; i >= 0; i--) {
                 ViajeActivo v = viajesActivos.get(i);
+
+                // Si está pausado en el nodo de pickup, descontar tick
+                if (v.pausaTicks > 0) {
+                    v.pausaTicks--;
+                    continue;
+                }
+
                 if (v.indiceActual < v.rutaCompleta.size() - 1) {
                     v.indiceActual++;
-                    v.taxi.setIdNodoActual(v.rutaCompleta.get(v.indiceActual));
+                    int nodoActual = v.rutaCompleta.get(v.indiceActual);
+                    v.taxi.setIdNodoActual(nodoActual);
+
+                    // Si llegó al nodo de pickup, pausar y marcar recogida
+                    if (nodoActual == v.nodoPickup && v.indiceActual < v.rutaCompleta.size() - 1) {
+                        v.pausaTicks = 5; // ~1.5 segundos de pausa
+                        v.taxi.setRecogiendo(true);
+                        for (Listener l : listeners) l.onTick();
+                        // Quitar el amarillo después de la pausa en el siguiente tick
+                        Timer quitarAmarillo = new Timer(1600, ev -> {
+                            v.taxi.setRecogiendo(false);
+                            for (Listener l : listeners) l.onTick();
+                        });
+                        quitarAmarillo.setRepeats(false);
+                        quitarAmarillo.start();
+                    }
                 } else {
                     v.solicitud.completarViaje();
                     viajesActivos.remove(i);
@@ -82,7 +109,6 @@ public class ModeloSimulacion {
             }
 
             for (Listener l : listeners) l.onTick();
-            
             if (algunCompletado) {
                 for (Listener l : listeners) l.onViajesActualizados();
             }
@@ -187,7 +213,7 @@ public class ModeloSimulacion {
             historialRutas.add(rutaNodos);
             for (Listener l : listeners) {
                 l.onError("No hay ruta posible hacia ese destino (calle sin salida o contramano).");
-                l.onSolicitudProcesada(sol, rutaNodos);
+                l.onSolicitudProcesada(sol, rutaNodos, -1);
                 l.onViajesActualizados();
             }
             return sol;
@@ -210,14 +236,17 @@ public class ModeloSimulacion {
             va.solicitud = sol;
             va.rutaCompleta = rutaNodos;
             va.indiceActual = 0;
+            // El nodo de pickup es el último de la ruta de arribo (= origen del pasajero)
+            va.nodoPickup = sol.getPasajero().getIdNodoInterseccion();
             viajesActivos.add(va);
         }
 
         historialSolicitudes.add(sol);
         historialRutas.add(rutaNodos);
 
+        double segsDestino = etaDestino.getTiempoSegundos();
         for (Listener l : listeners) {
-            l.onSolicitudProcesada(sol, rutaNodos);
+            l.onSolicitudProcesada(sol, rutaNodos, segsDestino);
             l.onViajesActualizados();
         }
 
@@ -241,6 +270,7 @@ public class ModeloSimulacion {
         Random rnd = new Random();
         for (Unidad u : listaUnidades) {
             u.setDisponible(true);
+            u.setRecogiendo(false);
             u.setIdNodoActual(rnd.nextInt(totalNodos));
         }
         
@@ -251,6 +281,41 @@ public class ModeloSimulacion {
             l.onViajesActualizados();
         }
     }
+
+    // ── Simulación automática ─────────────────────────────────────────────────
+
+    public void iniciarSimulacionAutomatica() {
+        if (autoSimActiva) return;
+        autoSimActiva = true;
+
+        // Cada 3 segundos intenta generar un viaje aleatorio
+        timerAutoSim = new Timer(3000, e -> {
+            if (!mapaListo) return;
+
+            // Buscar cuántos taxis libres hay
+            long libres = listaUnidades.stream().filter(Unidad::isDisponible).count();
+            if (libres == 0) return;
+
+            // Generar origen y destino aleatorios distintos
+            int origen  = rndAutoSim.nextInt(totalNodos);
+            int destino = rndAutoSim.nextInt(totalNodos);
+            if (origen == destino) return;
+
+            // Procesar en hilo aparte para no bloquear el EDT
+            new Thread(() -> procesarSolicitud(origen, destino)).start();
+        });
+        timerAutoSim.start();
+    }
+
+    public void detenerSimulacionAutomatica() {
+        autoSimActiva = false;
+        if (timerAutoSim != null) {
+            timerAutoSim.stop();
+            timerAutoSim = null;
+        }
+    }
+
+    public boolean isAutoSimActiva() { return autoSimActiva; }
 
     // Getters para el mapa base Mercator
     public double getMinLng() { return minLng; }

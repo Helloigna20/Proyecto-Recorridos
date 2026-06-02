@@ -7,12 +7,11 @@ import java.util.Random;
  */
 public class Unidad {
     // ATRIBUTOS
-    private String idVehiculo; // Ej: "Taxi 0", "Taxi 1"
-    private int idNodoActual; // Vértice del grafo donde se encuentra al azar o tras terminar un viaje
-    private boolean disponible; // Estado de disponibilidad para aceptar solicitudes
-
-    // NUEVO ATRIBUTO: Guarda el ETA calculado por Dijkstra para el despacho actual
+    private String idVehiculo;
+    private int idNodoActual;
+    private boolean disponible;
     private double etaTemporal;
+    private boolean recogiendo = false; // true durante la pausa de recogida de pasajero
     public Unidad(String idVehiculo, int idNodoActual) {
         this.setIdVehiculo(idVehiculo);
         this.setIdNodoActual(idNodoActual);
@@ -44,4 +43,6 @@ public class Unidad {
     public void setIdVehiculo(String idVehiculo){this.idVehiculo=idVehiculo;}
     public double getEtaTemporal() { return etaTemporal; }
     public void setEtaTemporal(double etaTemporal) { this.etaTemporal = etaTemporal; }
+    public boolean isRecogiendo() { return recogiendo; }
+    public void setRecogiendo(boolean recogiendo) { this.recogiendo = recogiendo; }
 }
