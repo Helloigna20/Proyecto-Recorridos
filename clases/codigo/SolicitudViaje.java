@@ -39,7 +39,7 @@ public class SolicitudViaje {
         while (actual != null) {
             Unidad unidad = (Unidad) actual.getNodoInfo();
             
-            // Evaluamos solo si el vehículo no está ocupado en otro viaje
+            // Evaluamos solo si la unidad no está ocupada en otro viaje
             if (unidad.isDisponible()) {
                 // Calculamos el camino mínimo con Dijkstra a través del controlador del grafo
                 CalculoETA resultadoETA = motorGrafo.calcularRutaOptima(unidad.getIdNodoActual(), this.getPasajero().getIdNodoInterseccion());
@@ -47,7 +47,7 @@ public class SolicitudViaje {
                 if (resultadoETA != null) {
                     // Seteamos el ETA en el atributo temporal de la unidad para que ColaPrioridadETA pueda compararlo
                     unidad.setEtaTemporal(resultadoETA.getTiempoSegundos());
-                    // Al meterlo, tu estructura abstracta llamará a esMenor() y lo acomodará en su lugar correspondiente
+                    // Al meterlo, la estructura abstracta llamará a esMenor() y lo acomodará en su lugar correspondiente
                     colaPrioridadVehiculos.meter(unidad);
                 }
             }
@@ -83,7 +83,7 @@ public class SolicitudViaje {
                 viajeDespachado = true;
                 System.out.println("[OK] -> Solicitud ACEPTADA por: " + unidadCercana.getIdVehiculo());
             } else {
-                // El taxista la rechazó (probabilidad < 80%), el bucle continúa con la siguiente unidad de la cola
+                // El taxista la rechazó (probabilidad < 90%), el bucle continúa con la siguiente unidad de la cola
                 System.out.println("[RECHAZADO] -> El vehículo " + unidadCercana.getIdVehiculo() + " rechazó la alerta. Buscando al siguiente más cercano...");
             }
         }
