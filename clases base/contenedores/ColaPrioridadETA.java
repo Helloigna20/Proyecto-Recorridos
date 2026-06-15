@@ -1,6 +1,6 @@
 package contenedores;
 
-import clases.codigo.Unidad;
+import clases.Entidades.Unidad;
 
 /**
  * Clase concreta que le da la lógica de ordenamiento a tu ColaPrioridad abstracta.

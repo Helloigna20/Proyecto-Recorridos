@@ -1,4 +1,4 @@
-package clases.codigo;
+package clases.Entidades;
 
 import java.util.Random;
 

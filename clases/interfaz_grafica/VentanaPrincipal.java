@@ -1,6 +1,6 @@
 package clases.interfaz_grafica;
 
-import clases.codigo.SolicitudViaje;
+import clases.Entidades.SolicitudViaje;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

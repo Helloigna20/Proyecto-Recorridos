@@ -1,6 +1,6 @@
 package clases.interfaz_grafica;
 
-import clases.codigo.Unidad;
+import clases.Entidades.Unidad;
 
 import javax.swing.*;
 import java.awt.*;

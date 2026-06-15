@@ -1,4 +1,4 @@
-package clases.codigo;
+package clases.Matematica;
 /**
  * Clase que gestiona la Matriz de Adyacencia para representar las conexiones
  * físicas entre las esquinas/intersecciones de la ciudad de Salta.

@@ -1,4 +1,4 @@
-package clases.codigo;
+package clases.Entidades;
 
 /**
  * Clase que modela al cliente/pasajero que solicita una unidad de transporte.

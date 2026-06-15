@@ -1,4 +1,4 @@
-package clases.codigo;
+package clases.Matematica;
 import contenedores.ListaDoubleLinkedL;
 
 /**

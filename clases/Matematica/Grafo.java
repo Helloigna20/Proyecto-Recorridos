@@ -1,4 +1,4 @@
-package clases.codigo;
+package clases.Matematica;
 
 public class Grafo{
     protected int cantNodos;

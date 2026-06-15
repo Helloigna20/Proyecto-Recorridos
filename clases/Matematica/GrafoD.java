@@ -1,10 +1,10 @@
-package clases.codigo;
+package clases.Matematica;
 
 import contenedores.GraphPriorityQueue;
 import contenedores.ListaDoubleLinkedL;
 import recursos.Connection;
 
-public class GrafoD extends Grafo{
+public class GrafoD extends Grafo {
     private ListaDoubleLinkedL listaDistancia, listaCamino, listaSolucion;
 
     public GrafoD(int ordenGrafo) {

@@ -1,4 +1,4 @@
-package clases.codigo;
+package clases.Matematica;
 
 public class CalculoDistancia {
     public static double RADIO_TIERRA= 6371*1000;

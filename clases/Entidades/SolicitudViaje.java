@@ -1,5 +1,7 @@
-package clases.codigo;
+package clases.Entidades;
 
+import clases.Control.GestionGrafo;
+import clases.Matematica.CalculoETA;
 import contenedores.ColaPrioridad;
 import contenedores.ColaPrioridadETA;
 import contenedores.ColaSLinkedList;
